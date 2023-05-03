@@ -1,7 +1,10 @@
-import { app, shell, BrowserWindow } from "electron";
-import path from "path";
-import { electronApp, optimizer, is } from "@electron-toolkit/utils";
-import icon from "../../resources/icon.png?asset";
+import { app, shell, BrowserWindow } from 'electron';
+import { join, resolve } from 'path';
+import { electronApp, optimizer, is } from '@electron-toolkit/utils';
+
+import { createFileRoute, createURLRoute } from 'electron-router-dom';
+
+import icon from '../../resources/icon.png?asset';
 
 function createWindow(): void {
   // Create the browser window.
@@ -10,41 +13,53 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    backgroundColor: "#17141f",
-    titleBarStyle: "hiddenInset",
+    backgroundColor: '#17141f',
+    titleBarStyle: 'hiddenInset',
     trafficLightPosition: {
       x: 20,
       y: 20,
     },
-    ...(process.platform === "linux" ? { icon } : {}),
+    ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: path.join(__dirname, "../preload/index.js"),
+      preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
     },
   });
 
-  mainWindow.on("ready-to-show", () => {
+  mainWindow.on('ready-to-show', () => {
     mainWindow.show();
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url);
-    return { action: "deny" };
+    return { action: 'deny' };
   });
+
+  // Esse id, seria o id da janela
+  // Na nossa aplicação só termos uma janela
+  const devServerURL = createURLRoute(
+    process.env.ELECTRON_RENDERER_URL!,
+    'main',
+  );
+
+  const fileRoute = createFileRoute(
+    join(__dirname, '../renderer/index.html'),
+    'main',
+  );
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env.ELECTRON_RENDERER_URL) {
-    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
+    mainWindow.loadURL(devServerURL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
+    mainWindow.loadFile(...fileRoute);
   }
 }
 
 // ICONE NA DOCKER (só para Mac)
-if (process.platform === "darwin") {
+if (process.platform === 'darwin') {
   // mudar o ícone
-  app.dock.setIcon(path.resolve(__dirname, "icon.png"));
+  app.dock.setIcon(resolve(__dirname, 'icon.png'));
 }
 
 // This method will be called when Electron has finished
@@ -52,12 +67,12 @@ if (process.platform === "darwin") {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId("com.electron");
+  electronApp.setAppUserModelId('com.electron');
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
-  app.on("browser-window-created", (_, window) => {
+  app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window);
   });
 
@@ -69,7 +84,7 @@ app.whenReady().then(() => {
     Então ele verifica, se quando o aplicativo estiver aberto, mas sem nenhuma janela
     e o aplicativo voltou a ter o foco, ele cria a janela novamente
   */
-  app.on("activate", function () {
+  app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -84,8 +99,8 @@ app.whenReady().then(() => {
     No Mac quando todas as janelas do aplicativo estiverem fechadas,
     e o SO for diferente de Mac, fecha a aplicação
   */
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });

@@ -1,3 +1,4 @@
+import { Editor } from '../../components/Editor';
 import { ToC } from '../../components/ToC';
 
 const DocumentPage = () => {
@@ -18,7 +19,7 @@ const DocumentPage = () => {
       </aside>
 
       <section className="flex flex-col flex-1 items-center">
-        dsssdsdssd
+        <Editor />
       </section>
     </main>
   );

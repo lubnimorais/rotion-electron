@@ -1,9 +1,11 @@
-import { ReactNode } from 'react'
+import { ReactNode } from 'react';
+
+import { NavLink } from 'react-router-dom';
 
 interface ToCLinkProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function ToCLink(props: ToCLinkProps) {
-  return <a href="#" className="hover:text-rotion-50" {...props} />
+  return <NavLink to="#" className="hover:text-rotion-50" {...props} />;
 }

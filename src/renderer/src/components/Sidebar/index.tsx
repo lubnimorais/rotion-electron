@@ -1,5 +1,7 @@
 import clsx from 'clsx';
 
+import { useQuery } from '@tanstack/react-query';
+
 import * as Collapsible from '@radix-ui/react-collapsible';
 
 import { CaretDoubleLeft } from 'phosphor-react';
@@ -12,8 +14,10 @@ import { Search } from './Search';
 export function Sidebar() {
   const isMacOS = process.platform === 'darwin';
 
-  window.api.fetchDocuments('testeeeeee').then(response => {
-    console.log(response);
+  const { data } = useQuery(['documents'], async () => {
+    const response = await window.api.fetchDocuments();
+
+    return response.data;
   });
 
   return (
@@ -52,7 +56,12 @@ export function Sidebar() {
           <Navigation.Section>
             <Navigation.SectionTitle>Workspace</Navigation.SectionTitle>
             <Navigation.SectionContent>
-              <Navigation.Link to="/document/untitled">
+              {data?.map(document => (
+                <Navigation.Link key={document.id} to="/document/untitled">
+                  {document.title}
+                </Navigation.Link>
+              ))}
+              {/* <Navigation.Link to="/document/untitled">
                 Untitled
               </Navigation.Link>
               <Navigation.Link to="/document/discover">
@@ -61,7 +70,7 @@ export function Sidebar() {
               <Navigation.Link to="/document/ignite">Ignite</Navigation.Link>
               <Navigation.Link to="/document/ignite">
                 Rocketseat
-              </Navigation.Link>
+              </Navigation.Link> */}
             </Navigation.SectionContent>
           </Navigation.Section>
         </Navigation.Root>

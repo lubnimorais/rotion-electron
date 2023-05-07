@@ -7,6 +7,7 @@ import { createFileRoute, createURLRoute } from 'electron-router-dom';
 import icon from '../../resources/icon.png?asset';
 
 import './ipc';
+import './store';
 
 function createWindow(): void {
   // Create the browser window.
@@ -32,7 +33,7 @@ function createWindow(): void {
     mainWindow.show();
   });
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
+  mainWindow.webContents.setWindowOpenHandler(details => {
     shell.openExternal(details.url);
     return { action: 'deny' };
   });

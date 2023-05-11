@@ -44,7 +44,7 @@ ipcMain.handle(
     event,
     { id }: IFetchDocumentRequest,
   ): Promise<IFetchDocumentResponse> => {
-    const document = store.get(`document.${id}`) as IDocument;
+    const document = store.get(`documents.${id}`) as IDocument;
 
     return {
       data: document,

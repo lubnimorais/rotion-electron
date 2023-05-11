@@ -27,7 +27,7 @@ const api = {
   fetchDocument({
     id,
   }: IFetchDocumentRequest): Promise<IFetchDocumentResponse> {
-    return ipcRenderer.invoke(IPC.DOCUMENTS.FETCH, id);
+    return ipcRenderer.invoke(IPC.DOCUMENTS.FETCH, { id });
   },
 
   createDocument(): Promise<ICreateDocumentResponse> {

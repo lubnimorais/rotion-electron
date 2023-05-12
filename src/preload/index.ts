@@ -39,7 +39,7 @@ const api = {
   },
 
   deleteDocument({ id }: IDeleteDocumentRequest): Promise<void> {
-    return ipcRenderer.invoke(IPC.DOCUMENTS.FETCH, { id });
+    return ipcRenderer.invoke(IPC.DOCUMENTS.DELETE, { id });
   },
 };
 

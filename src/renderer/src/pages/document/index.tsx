@@ -1,13 +1,18 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+
 import { useParams } from 'react-router-dom';
 
-import { Editor } from '../../components/Editor';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { IDocument } from '@shared/types/ipc';
+
+import { Editor, OnContentUpdatedParams } from '../../components/Editor';
 import { ToC } from '../../components/ToC';
-import { useQuery } from '@tanstack/react-query';
 
 const DocumentPage = () => {
   const { id } = useParams<{ id: string }>();
-  console.log('🚀 ~ file: index.tsx:10 ~ DocumentPage ~ id:', id);
+
+  const queryClient = useQueryClient();
 
   const { data, isFetching } = useQuery(['document', id], async () => {
     if (id) {
@@ -24,6 +29,38 @@ const DocumentPage = () => {
 
     return '';
   }, [data]);
+
+  const { mutateAsync: saveDocument } = useMutation(
+    async ({ title, content }: OnContentUpdatedParams) => {
+      if (id) {
+        await window.api.saveDocument({ id, title, content });
+      }
+    },
+    {
+      onSuccess: (_, { title, content }) => {
+        queryClient.setQueryData<IDocument[]>(['documents'], documents => {
+          if (documents && documents.length >= 0) {
+            return documents.map(document => {
+              if (document.id === id) {
+                return { ...document, title };
+              }
+
+              return document;
+            });
+          }
+        });
+      },
+    },
+  );
+
+  const handleEditorContentUpdated = useCallback(
+    ({ title, content }: OnContentUpdatedParams) => {
+      console.log(title);
+      console.log(content);
+      saveDocument({ title, content });
+    },
+    [saveDocument],
+  );
 
   return (
     <main className="flex flex-1 py-12 px-10 gap-8">
@@ -42,7 +79,12 @@ const DocumentPage = () => {
       </aside>
 
       <section className="flex flex-col flex-1 items-center">
-        {!isFetching && data && <Editor content={initialContent} />}
+        {!isFetching && data && (
+          <Editor
+            content={initialContent}
+            onContentUpdated={handleEditorContentUpdated}
+          />
+        )}
       </section>
     </main>
   );

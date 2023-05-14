@@ -18,6 +18,10 @@ export interface IDeleteDocumentRequest {
   id: string;
 }
 
+export interface IOnNewDocumentRequest {
+  callback: () => void;
+}
+
 /**
  * RESPONSE
  */

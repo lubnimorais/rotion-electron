@@ -4,6 +4,9 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 
 import { createFileRoute, createURLRoute } from 'electron-router-dom';
 
+import { createTray } from './tray';
+import { createShortCuts } from './shortcuts';
+
 import icon from '../../resources/icon.png?asset';
 
 import './ipc';
@@ -28,6 +31,9 @@ function createWindow(): void {
       sandbox: false,
     },
   });
+
+  createTray(mainWindow);
+  createShortCuts(mainWindow);
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show();
@@ -62,7 +68,7 @@ function createWindow(): void {
 // ICONE NA DOCKER (só para Mac)
 if (process.platform === 'darwin') {
   // mudar o ícone
-  app.dock.setIcon(resolve(__dirname, 'icon.png'));
+  app.dock.setIcon(resolve(__dirname, '..', '..', 'resources', 'icon.png'));
 }
 
 // This method will be called when Electron has finished
